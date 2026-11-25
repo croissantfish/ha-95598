@@ -19,6 +19,7 @@
 
 - `job_start_time`：每天第一轮同步开始时间。
 - `job_times`：每天同步次数。
+- `fetch_on_startup`：启动应用时是否立即同步；默认关闭，避免容器重启造成额外登录。
 - `daily_usage_window_days`：每次同步最近 `7` 或 `30` 天日用电数据。
 - `publish_tou_detail_sensors`：是否额外发布谷、平、峰、尖分时细项实体。
 - `tou_price_config`：电价配置文件路径。默认 `config/tou_price_config.json`。

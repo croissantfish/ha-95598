@@ -1,5 +1,5 @@
 name: "95598 for Home Assistant (Debug)"
-version: "0.1.0-debug.3"
+version: "0.1.0-debug.4"
 slug: "ha_95598_debug"
 description: "Debug startup for 95598 electricity synchronization"
 url: "https://github.com/croissantfish/ha-95598"
@@ -27,6 +27,7 @@ options:
   mqtt_publish_timeout_seconds: 10
   job_start_time: "07:00"
   job_times: 2
+  fetch_on_startup: false
   retry_times_limit: 3
   retry_wait_time_offset_unit: 5
   republish_interval_minutes: 0
@@ -61,6 +62,7 @@ schema:
   mqtt_publish_timeout_seconds: int(1,60)
   job_start_time: str
   job_times: int(1,10)
+  fetch_on_startup: bool
   retry_times_limit: int(1,10)
   retry_wait_time_offset_unit: int(2,30)
   republish_interval_minutes: int(0,1440)
