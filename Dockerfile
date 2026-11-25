@@ -36,11 +36,11 @@ RUN set -eux; \
     fallback_dst="${APT_FALLBACK_SCHEME}://${APT_FALLBACK_MIRROR}"; \
     rewrite_sources "$primary_src" "$primary_dst"; \
     rewrite_sources "$primary_security_src" "$primary_dst"; \
-    if ! (apt-get --allow-releaseinfo-change update && apt-get install -y --no-install-recommends chromium chromium-driver fonts-noto-cjk tzdata xauth xvfb); then \
+    if ! (apt-get --allow-releaseinfo-change update && apt-get install -y --no-install-recommends chromium chromium-driver fonts-noto-cjk tzdata); then \
         echo "Primary apt mirror failed, falling back to ${fallback_dst}" >&2; \
         rewrite_sources "$primary_dst" "$fallback_dst"; \
         apt-get --allow-releaseinfo-change update; \
-        apt-get install -y --no-install-recommends chromium chromium-driver fonts-noto-cjk tzdata xauth xvfb; \
+        apt-get install -y --no-install-recommends chromium chromium-driver fonts-noto-cjk tzdata; \
     fi; \
     ln -snf /usr/share/zoneinfo/$TZ /etc/localtime; \
     echo $TZ > /etc/timezone; \
@@ -76,10 +76,11 @@ COPY --chown=app:app scripts /app/scripts
 COPY --chown=app:app captcha_solver /app/captcha_solver
 COPY --chown=app:app config /app/config
 
-ENV BROWSER_DISABLE_SANDBOX=true
+ENV BROWSER_HEADLESS=true
+ENV BROWSER_DISABLE_SANDBOX=false
 USER app
 
 HEALTHCHECK --interval=60s --timeout=5s --start-period=120s --retries=2 \
     CMD python3 -m scripts.tools.healthcheck
 
-CMD ["xvfb-run", "-a", "--server-args=-screen 0 1920x1080x24", "python3", "-m", "scripts.main"]
+CMD ["python3", "-m", "scripts.main"]

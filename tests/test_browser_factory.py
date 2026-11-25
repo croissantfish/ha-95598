@@ -34,6 +34,39 @@ def test_profile_cache_pruning_can_be_disabled(tmp_path: Path):
     assert cache_file.exists()
 
 
+@pytest.mark.parametrize(("headless", "expected"), [("true", True), ("false", False)])
+def test_headless_browser_option_is_configurable(monkeypatch, headless, expected):
+    class FakeService:
+        def stop(self):
+            pass
+
+    class FakeDriver:
+        def set_page_load_timeout(self, _timeout):
+            pass
+
+        def execute_cdp_cmd(self, *_args):
+            pass
+
+        def implicitly_wait(self, _timeout):
+            pass
+
+    captured = {}
+    monkeypatch.setenv("PYTHON_IN_DOCKER", "1")
+    monkeypatch.setenv("BROWSER_PERSIST_PROFILE", "false")
+    monkeypatch.setenv("BROWSER_HEADLESS", headless)
+    monkeypatch.setattr(browser_factory, "ChromeService", lambda **_kwargs: FakeService())
+
+    def make_driver(*, options, service):
+        captured["arguments"] = options.arguments
+        return FakeDriver()
+
+    monkeypatch.setattr(browser_factory.webdriver, "Chrome", make_driver)
+
+    browser_factory.create_chromium_driver(1)
+
+    assert ("--headless=new" in captured["arguments"]) is expected
+
+
 def test_driver_start_failure_stops_chromedriver_service(monkeypatch):
     class FakeService:
         stopped = False
@@ -105,6 +138,14 @@ def test_active_profile_lock_is_preserved(tmp_path: Path, monkeypatch):
     lock = tmp_path / "SingletonLock"
     lock.symlink_to(f"test-host-{os.getpid()}")
     monkeypatch.setattr(browser_factory.socket, "gethostname", lambda: "test-host")
+    original_exists = Path.exists
+
+    def process_exists(path):
+        if str(path) == f"/proc/{os.getpid()}":
+            return True
+        return original_exists(path)
+
+    monkeypatch.setattr(browser_factory.Path, "exists", process_exists)
 
     assert remove_stale_profile_locks(tmp_path) == 0
     assert lock.is_symlink()

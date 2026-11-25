@@ -1,5 +1,5 @@
 name: "95598 for Home Assistant (Debug)"
-version: "0.1.0-debug.8"
+version: "0.1.0-debug.9"
 slug: "ha_95598_debug"
 description: "Debug startup for 95598 electricity synchronization"
 url: "https://github.com/croissantfish/ha-95598"
@@ -8,11 +8,12 @@ arch:
   - amd64
 startup: services
 boot: manual
-init: false
-host_network: true
+init: true
+host_network: false
+tmpfs: true
 build: true
 map:
-  - type: addon_config
+  - type: app_config
     read_only: false
     path: /app/data
 options:
@@ -71,7 +72,7 @@ schema:
   publish_tou_detail_sensors: bool
   tou_price_config: str
   notifier: list(none|telegram)
-  tg_bot_token: str?
+  tg_bot_token: password?
   tg_chat_id: str?
   tg_api_base_url: url?
   stale_data_alert_days: int(1,30)

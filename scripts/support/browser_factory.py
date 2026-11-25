@@ -203,6 +203,8 @@ def create_chromium_driver(driver_wait_time: int, *, _force_ephemeral: bool = Fa
     browser_language_primary = browser_language.split(",")[0]
 
     chrome_options = webdriver.ChromeOptions()
+    if _truthy_env("BROWSER_HEADLESS"):
+        chrome_options.add_argument("--headless=new")
     if os.geteuid() == 0 or _truthy_env("BROWSER_DISABLE_SANDBOX"):
         chrome_options.add_argument("--no-sandbox")
     chrome_options.add_argument("--disable-dev-shm-usage")
