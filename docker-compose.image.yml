@@ -2,7 +2,7 @@ services:
   ha-95598:
     env_file:
       - .env
-    image: ${IMAGE:-ghcr.io/renxiaoyaoo/ha-95598:latest}
+    image: ${IMAGE:-ghcr.io/renxiaoyaoo/ha-95598:latest@sha256:752c3c3f101fede7c51d2a636c957dcea087d21edbeaaf0cbafa2e43d1b32731}
     container_name: ha-95598
     extra_hosts:
       - "host.docker.internal:host-gateway"

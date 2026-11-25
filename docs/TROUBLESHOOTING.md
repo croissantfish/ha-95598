@@ -12,6 +12,12 @@ For staged privacy checks before a commit:
 python3 scripts/tools/config_doctor.py --staged
 ```
 
+## Browser Fails to Start
+
+Docker images use headless Chromium and do not require Xvfb or a `DISPLAY`. Confirm that the image contains the current `scripts/support/browser_factory.py` and that `BROWSER_HEADLESS=true` is set.
+
+The container runs Chromium as a non-root user with its sandbox enabled. If the platform logs a sandbox-specific error, `BROWSER_DISABLE_SANDBOX=true` is a compatibility fallback, but it weakens browser isolation and should not be the default.
+
 ## Login Fails
 
 Check:

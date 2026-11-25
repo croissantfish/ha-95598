@@ -70,7 +70,7 @@
 - 支持按日期范围补日用电量和分时数据。
 - 支持无人值守登录、二维码兜底、可选 Telegram 通知。
 - 支持可选谷、平、峰、尖分时细项实体。
-- 使用 `Docker + Xvfb + Chromium + Selenium` 运行。
+- 使用 `Docker + headless Chromium + Selenium` 运行，不依赖 Xvfb。
 
 ## 适用条件
 

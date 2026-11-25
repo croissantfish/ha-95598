@@ -11,6 +11,8 @@ On startup the service:
 
 `FETCH_ON_STARTUP=false` is recommended for unattended installs because container restarts should not cause extra login attempts.
 
+Docker images set `BROWSER_HEADLESS=true` and start Chromium directly without Xvfb. Set `BROWSER_HEADLESS=false` only for a local environment with a working display. Scheduled times use the container timezone, which defaults to `Asia/Shanghai`.
+
 ## Scheduled Fetch
 
 Each run handles every visible 95598 user ID unless it is listed in `IGNORE_USER_ID`.

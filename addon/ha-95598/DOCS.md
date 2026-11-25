@@ -17,7 +17,7 @@
 
 ### 同步
 
-- `job_start_time`：每天第一轮同步开始时间。
+- `job_start_time`：每天第一轮同步开始时间，使用容器的 `Asia/Shanghai` 时区（UTC+8）。
 - `job_times`：每天同步次数。
 - `fetch_on_startup`：启动应用时是否立即同步；默认关闭，避免容器重启造成额外登录。
 - `daily_usage_window_days`：每次同步最近 `7` 或 `30` 天日用电数据。
