@@ -19,7 +19,7 @@ def run_addon_script(tmp_path: Path, options: str):
     python_shim.write_text(
         """#!/usr/bin/env bash
 if [[ "$1" == "-m" && "$2" == "scripts.main" ]]; then
-  "${REAL_PYTHON}" -c 'import json, os; print(json.dumps({key: os.environ.get(key) for key in ("ACCOUNT", "FETCH_ON_STARTUP", "BROWSER_HEADLESS", "DISPLAY", "LOGIN_CREDENTIALS")}))' > "${TEST_OUTPUT_PATH}"
+  "${REAL_PYTHON}" -c 'import json, os; print(json.dumps({key: os.environ.get(key) for key in ("ACCOUNT", "FETCH_ON_STARTUP", "BROWSER_HEADLESS", "DISPLAY", "LOGIN_CREDENTIALS", "ALLOW_QR_FALLBACK_AFTER_RK001", "QR_CODE_LOGIN_WAIT_COUNT")}))' > "${TEST_OUTPUT_PATH}"
   exit 0
 fi
 exec "${REAL_PYTHON}" "$@"
@@ -55,6 +55,8 @@ def test_addon_run_script_exports_options_and_headless_mode(tmp_path: Path):
             {
                 "account": "account@example.com",
                 "fetch_on_startup": True,
+                "allow_qr_fallback_after_rk001": True,
+                "qr_code_login_wait_count": 30,
                 "login_credentials": [{"account": "account@example.com", "password": "password1"}],
             }
         ),
@@ -66,6 +68,8 @@ def test_addon_run_script_exports_options_and_headless_mode(tmp_path: Path):
         "FETCH_ON_STARTUP": "true",
         "BROWSER_HEADLESS": "true",
         "DISPLAY": None,
+        "ALLOW_QR_FALLBACK_AFTER_RK001": "true",
+        "QR_CODE_LOGIN_WAIT_COUNT": "30",
         "LOGIN_CREDENTIALS": json.dumps(
             [{"account": "account@example.com", "password": "password1"}], ensure_ascii=False
         ),

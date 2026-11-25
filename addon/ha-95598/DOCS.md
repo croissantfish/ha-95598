@@ -27,6 +27,9 @@
 ### 登录兜底和通知
 
 - `login_fallback`：密码登录失败或验证码无法自动通过时是否使用二维码兜底。
+- `allow_qr_fallback_after_rk001`：RK001 冷却期间是否仍允许二维码兜底；默认关闭，仅供准备扫码时临时开启。
+- `qr_code_login_wait_count`：每张二维码的等待轮询次数，每次间隔 `10` 秒；默认 `7`。
+- `qr_code_login_refresh_limit`：二维码过期或等待超时后的最大自动刷新次数。
 - `captcha_point_click_max_refreshes`：点选验证码低置信或失败后的最大刷新次数。
 - `notifier`：可选 `telegram`，用于推送登录二维码、数据停更和历史缺口告警。
 - `stale_data_alert_days`：最新日数据落后多少天后告警。

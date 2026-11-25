@@ -51,6 +51,8 @@ options = (
     ("history_gap_alert_days", "HISTORY_GAP_ALERT_DAYS", 30),
     ("captcha_point_click_max_refreshes", "CAPTCHA_POINT_CLICK_MAX_REFRESHES", 4),
     ("login_fallback", "LOGIN_FALLBACK", "qrcode"),
+    ("allow_qr_fallback_after_rk001", "ALLOW_QR_FALLBACK_AFTER_RK001", False),
+    ("qr_code_login_wait_count", "QR_CODE_LOGIN_WAIT_COUNT", 7),
     ("qr_code_login_refresh_limit", "QR_CODE_LOGIN_REFRESH_LIMIT", 1),
     ("trace_retention_days", "TRACE_RETENTION_DAYS", 7),
     ("page_trace_mode", "PAGE_TRACE_MODE", "errors"),

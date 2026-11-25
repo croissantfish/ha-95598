@@ -1,5 +1,5 @@
 name: "95598 for Home Assistant"
-version: "0.1.4.5"
+version: "0.1.4.6"
 slug: "ha_95598"
 description: "Sync 95598 electricity data to Home Assistant through MQTT Discovery"
 url: "https://github.com/croissantfish/ha-95598"
@@ -44,6 +44,8 @@ options:
   history_gap_alert_days: 30
   captcha_point_click_max_refreshes: 4
   login_fallback: "qrcode"
+  allow_qr_fallback_after_rk001: false
+  qr_code_login_wait_count: 7
   qr_code_login_refresh_limit: 1
   trace_retention_days: 7
   page_trace_mode: "errors"
@@ -79,6 +81,8 @@ schema:
   history_gap_alert_days: int(2,365)
   captcha_point_click_max_refreshes: int(0,10)
   login_fallback: list(qrcode|none)
+  allow_qr_fallback_after_rk001: bool
+  qr_code_login_wait_count: int(1,60)
   qr_code_login_refresh_limit: int(0,5)
   trace_retention_days: int(1,30)
   page_trace_mode: list(errors|all|off)
