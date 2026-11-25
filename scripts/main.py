@@ -1,5 +1,6 @@
 import logging
 import os
+import signal
 import sys
 from dataclasses import dataclass
 from datetime import datetime
@@ -44,6 +45,13 @@ def load_runtime_config() -> RuntimeConfig:
         republish_interval_minutes=int(os.getenv("REPUBLISH_INTERVAL_MINUTES", 60)),
         fetch_on_startup=os.getenv("FETCH_ON_STARTUP", "false").lower() == "true",
     )
+
+
+def handle_shutdown(signum, _frame):
+    logging.info("Received %s; shutting down.", signal.Signals(signum).name)
+    raise SystemExit(0)
+
+
 def main():
     if "PYTHON_IN_DOCKER" not in os.environ:
         import dotenv
@@ -60,6 +68,9 @@ def main():
         logging.error("Failed to read runtime configuration (%s).", type(exc).__name__)
         sys.exit(1)
 
+    signal.signal(signal.SIGTERM, handle_shutdown)
+    signal.signal(signal.SIGINT, handle_shutdown)
+
     logging.info("The current project version is %s.", config.version)
     logging.info("Configured %s login credential(s).", len(config.credentials))
     current_datetime = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -71,27 +82,31 @@ def main():
     ErrorWatcher.init(root_dir=error_root, screenshot_dir=screenshot_dir)
     logging.info("ErrorWatcher init done")
     updater = SensorUpdater()
-    fetcher = DataFetcher(config.credentials[0].account, config.credentials[0].password, updater=updater, credentials=config.credentials)
-    schedule_jobs(
-        fetcher,
-        updater,
-        config.job_start_time,
-        config.job_times,
-        config.retry_times_limit,
-        config.republish_interval_minutes,
-        config.job_schedule_times,
-    )
+    try:
+        fetcher = DataFetcher(config.credentials[0].account, config.credentials[0].password, updater=updater, credentials=config.credentials)
+        schedule_jobs(
+            fetcher,
+            updater,
+            config.job_start_time,
+            config.job_times,
+            config.retry_times_limit,
+            config.republish_interval_minutes,
+            config.job_schedule_times,
+        )
 
-    republished = updater.republish()
-    if not config.fetch_on_startup:
-        logging.info("Startup fetch is disabled; waiting for the scheduled run.")
-    elif republished and updater.should_skip_startup_fetch():
-        logging.info("Data restored from complete cache, skipping startup fetch to protect account.")
-    else:
-        logging.info("Cache is missing, stale, or incomplete. Fetching data from State Grid...")
-        run_task(fetcher, config.retry_times_limit)
+        republished = updater.republish()
+        if not config.fetch_on_startup:
+            logging.info("Startup fetch is disabled; waiting for the scheduled run.")
+        elif republished and updater.should_skip_startup_fetch():
+            logging.info("Data restored from complete cache, skipping startup fetch to protect account.")
+        else:
+            logging.info("Cache is missing, stale, or incomplete. Fetching data from State Grid...")
+            run_task(fetcher, config.retry_times_limit)
 
-    run_forever()
+        run_forever()
+    finally:
+        updater.close()
+
 
 def logger_init(level: str):
     logger = logging.getLogger()
