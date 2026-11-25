@@ -11,6 +11,7 @@ from scripts.sensor_updater import SensorUpdater
 from scripts.support.error_watcher import ErrorWatcher
 from scripts.support.credentials import LoginCredential, load_login_credentials
 from scripts.support.job_scheduler import run_forever, run_task, schedule_jobs
+from scripts.support.shutdown import ShutdownRequested
 
 
 LOCAL_DATA_DIR = Path(__file__).resolve().parent.parent / "data"
@@ -49,7 +50,7 @@ def load_runtime_config() -> RuntimeConfig:
 
 def handle_shutdown(signum, _frame):
     logging.info("Received %s; shutting down.", signal.Signals(signum).name)
-    raise SystemExit(0)
+    raise ShutdownRequested()
 
 
 def main():

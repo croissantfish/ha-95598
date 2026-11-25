@@ -1,5 +1,6 @@
 import logging
 import os
+import sys
 import time
 from datetime import datetime
 from selenium.webdriver.support import expected_conditions as EC
@@ -9,7 +10,7 @@ from scripts.fetchers.monthly_bill import MonthlyBillFetcher
 from scripts.fetchers.usage import UsageFetcher
 from scripts.pages.usage_page import UsagePage
 from scripts.sensor_updater import SensorUpdater
-from scripts.support.browser_factory import create_chromium_driver
+from scripts.support.browser_factory import create_chromium_driver, terminate_driver_service
 from scripts.support.data_persister import DataPersister, FetchedUserData
 from scripts.support.error_watcher import ErrorWatcher
 from scripts.support.fetch_progress import has_completed_stage
@@ -22,6 +23,7 @@ from scripts.support.ha95598_navigator import Ha95598Navigator
 from scripts.support.ha_energy_backfiller import HaEnergyStatisticsBackfiller
 from scripts.support.user_ids import resolve_user_ids
 from scripts.support.fetch_workflow import FetchWorkflow
+from scripts.support.shutdown import ShutdownRequested
 
 from scripts.const import BALANCE_URL
 
@@ -341,7 +343,10 @@ class DataFetcher:
             raise
         finally:
             updater.close()
-            driver.quit()
+            if isinstance(sys.exc_info()[1], ShutdownRequested):
+                terminate_driver_service(driver)
+            else:
+                driver.quit()
 
     def check_cached_stale_data(self) -> None:
         updater = self.updater or SensorUpdater()

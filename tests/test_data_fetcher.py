@@ -91,6 +91,43 @@ def test_fetch_raises_when_login_returns_no_user_ids(monkeypatch) -> None:
     assert driver.quit_called is True
 
 
+def test_shutdown_kills_chromedriver_instead_of_waiting_for_quit(monkeypatch) -> None:
+    driver = FakeDriver()
+    process = SimpleNamespace(killed=False)
+
+    def kill():
+        process.killed = True
+
+    process.kill = kill
+    driver.service = SimpleNamespace(process=process)
+    updater = FakeUpdater()
+    fetcher = DataFetcher.__new__(DataFetcher)
+    fetcher.updater = updater
+    fetcher.IGNORE_USER_ID = []
+    fetcher.RETRY_TIMES_LIMIT = 3
+    fetcher.login_manager = SimpleNamespace(restore_or_login=lambda _driver: None)
+    fetcher._get_webdriver = lambda: driver
+    fetcher._step_sleep = lambda *_args, **_kwargs: None
+
+    def request_shutdown(_driver, _updater):
+        raise data_fetcher_module.ShutdownRequested()
+
+    fetcher._resolve_user_id_list = request_shutdown
+    monkeypatch.setattr(
+        data_fetcher_module.ErrorWatcher,
+        "instance",
+        staticmethod(lambda: SimpleNamespace(set_driver=lambda _driver: None)),
+    )
+
+    with pytest.raises(data_fetcher_module.ShutdownRequested) as exit_info:
+        fetcher.fetch()
+
+    assert exit_info.value.code == 0
+    assert process.killed is True
+    assert driver.quit_called is False
+    assert updater.closed is True
+
+
 def test_prepare_scheduled_run_resets_cached_progress() -> None:
     calls = []
     updater = SimpleNamespace(

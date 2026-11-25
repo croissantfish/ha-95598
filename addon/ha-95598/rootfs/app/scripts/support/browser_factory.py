@@ -310,3 +310,17 @@ def create_chromium_driver(driver_wait_time: int, *, _force_ephemeral: bool = Fa
             logging.warning("Persistent Chromium profile failed; retrying once with an ephemeral profile.")
             return create_chromium_driver(driver_wait_time, _force_ephemeral=True)
         raise
+
+
+def terminate_driver_service(driver) -> None:
+    process = getattr(getattr(driver, "service", None), "process", None)
+    if process is not None:
+        try:
+            process.kill()
+            return
+        except OSError as cleanup_exc:
+            logging.warning("Failed to kill ChromeDriver during shutdown (%s).", type(cleanup_exc).__name__)
+    try:
+        driver.quit()
+    except Exception as cleanup_exc:
+        logging.warning("Failed to quit Chromium during shutdown (%s).", type(cleanup_exc).__name__)
