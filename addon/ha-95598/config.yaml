@@ -1,5 +1,5 @@
 name: "95598 for Home Assistant (Debug)"
-version: "0.1.0-debug.2"
+version: "0.1.0-debug.3"
 slug: "ha_95598_debug"
 description: "Debug startup for 95598 electricity synchronization"
 url: "https://github.com/croissantfish/ha-95598"
