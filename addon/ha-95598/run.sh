@@ -83,8 +83,9 @@ if [[ "${LOGIN_CREDENTIALS_JSON}" != "[]" ]]; then
   export LOGIN_CREDENTIALS="${LOGIN_CREDENTIALS_JSON}"
 fi
 
-Xvfb :99 -screen 0 1920x1080x24 >/tmp/ha-95598-xvfb.log 2>&1 &
-export DISPLAY=:99
+Xvfb :100 -screen 0 1920x1080x24 >/tmp/ha-95598-xvfb.log 2>&1 &
+export DISPLAY=:100
+sleep 1
 
 chromium --version
 chromedriver --version
