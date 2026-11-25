@@ -86,4 +86,20 @@ fi
 Xvfb :99 -screen 0 1920x1080x24 >/tmp/ha-95598-xvfb.log 2>&1 &
 export DISPLAY=:99
 
+chromium --version
+chromedriver --version
+cat /tmp/ha-95598-xvfb.log
+python3 -u - <<'PY'
+from scripts.support.browser_factory import create_chromium_driver
+
+try:
+    driver = create_chromium_driver(5)
+except Exception as exc:
+    print(f"[ha-95598-debug] browser startup failed: {type(exc).__name__}: {exc}", flush=True)
+    raise SystemExit(1)
+else:
+    print("[ha-95598-debug] browser startup succeeded", flush=True)
+    driver.quit()
+PY
+
 exec python3 -m scripts.main
