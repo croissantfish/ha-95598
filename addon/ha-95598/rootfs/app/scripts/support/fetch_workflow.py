@@ -180,17 +180,22 @@ class FetchWorkflow:
             if fetcher._has_completed_stage(progress, "billing"):
                 logging.info("Skip monthly billing TOU fetch for %s because today's progress already exists.", mask_user_id(user_id))
             else:
-                bill_rows, bill_verified = fetcher._sync_monthly_bill_tou(driver, user_id)
-                if bill_rows:
-                    months = ", ".join(row["month"] for row in bill_rows)
+                result = fetcher._sync_monthly_bill_tou(driver, user_id)
+                updater.update_progress(user_id, billing_failed_months=result.failed_months)
+                if result.rows:
+                    months = ", ".join(row["month"] for row in result.rows)
                     logging.info("Synced monthly bill TOU for %s: %s", mask_user_id(user_id), months)
-                elif bill_verified:
-                    logging.info("Monthly bill TOU check completed for %s with no new data.", mask_user_id(user_id))
-                else:
+                if result.failed_months:
+                    failed_months = ", ".join(result.failed_months)
+                    logging.warning("Monthly bill TOU failed for %s: %s", mask_user_id(user_id), failed_months)
+                    raise RuntimeError(f"monthly bill sync incomplete for {failed_months}")
+                if not result.verified:
                     logging.warning("Monthly bill TOU check did not complete for %s", mask_user_id(user_id))
-                if bill_verified:
-                    updater.update_progress_stage(user_id, "billing", fetch_date=fetcher._progress_date())
-                    progress = updater.get_progress(user_id)
+                    raise RuntimeError("monthly bill sync could not be verified")
+                if not result.rows:
+                    logging.info("Monthly bill TOU check completed for %s with no new data.", mask_user_id(user_id))
+                updater.update_progress_stage(user_id, "billing", fetch_date=fetcher._progress_date())
+                progress = updater.get_progress(user_id)
 
         if fetcher.db is None or fetcher._has_completed_stage(progress, "billing"):
             updater.update_progress_stage(user_id, "complete", fetch_date=fetcher._progress_date())

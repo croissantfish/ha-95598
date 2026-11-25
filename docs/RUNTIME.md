@@ -25,7 +25,9 @@ For each user, progress is saved in cache with these stages:
 none -> balance -> yearly -> monthly -> daily -> tou -> persist -> billing -> complete
 ```
 
-Each scheduled run starts a fresh set of stages. Retries within that run keep completed stages so an interrupted attempt can resume without repeating successful work.
+Each scheduled run starts a fresh set of stages. Retries within that run keep completed stages so an interrupted attempt can resume without repeating successful work. Official monthly bills are persisted one month at a time, and failed months are recorded separately; a partially synced bill stage is not marked complete.
+
+Monthly bills use the browser's authenticated `apiPost` helper first and retain page navigation as a fallback. Both paths skip months already stored as official bills.
 
 Each fetch attempt is limited by `FETCH_ATTEMPT_TIMEOUT_MINUTES` (default `30`). A timed-out attempt follows the normal retry path. Docker Compose also checks a scheduler heartbeat and marks the container unhealthy if the main loop remains blocked for too long.
 
