@@ -14,7 +14,8 @@ ARG APT_MIRROR=mirrors.tuna.tsinghua.edu.cn
 ARG APT_SCHEME=https
 ARG APT_FALLBACK_MIRROR=deb.debian.org
 ARG APT_FALLBACK_SCHEME=https
-ARG PIP_INDEX_URL=https://pypi.org/simple
+ARG PIP_INDEX_URL=https://pypi.tuna.tsinghua.edu.cn/simple
+ARG PIP_FALLBACK_INDEX_URL=https://pypi.org/simple
 ENV VERSION=${BUILD_VERSION}
 
 WORKDIR /app
@@ -51,19 +52,26 @@ RUN set -eux; \
 COPY rootfs/app/requirements.txt /tmp/requirements.txt
 
 RUN cd /tmp \
-    && PIP_ROOT_USER_ACTION=ignore pip install \
-    --disable-pip-version-check \
-    --no-cache-dir \
-    --retries 10 \
-    --timeout 120 \
-    --index-url "${PIP_INDEX_URL}" \
-    -r requirements.txt \
-    && rm -rf /tmp/* \
-    && find /usr/local/lib/python3.12/site-packages -type d \( -name __pycache__ -o -name test -o -name tests \) -prune -exec rm -rf '{}' + \
-    && find /usr/local/lib/python3.12/site-packages -type f \( -name '*.pyc' -o -name '*.pyo' \) -delete \
-    && pip cache purge \
-    && rm -rf /var/lib/apt/lists/* \
-    && rm -rf /var/log/*
+    && set -eu; \
+    install_requirements() { \
+        PIP_ROOT_USER_ACTION=ignore pip install \
+        --disable-pip-version-check \
+        --no-cache-dir \
+        --retries 10 \
+        --timeout 120 \
+        --index-url "$1" \
+        -r requirements.txt; \
+    }; \
+    if ! install_requirements "${PIP_INDEX_URL}"; then \
+        echo "Primary pip index failed, falling back to ${PIP_FALLBACK_INDEX_URL}" >&2; \
+        install_requirements "${PIP_FALLBACK_INDEX_URL}"; \
+    fi; \
+    rm -rf /tmp/*; \
+    find /usr/local/lib/python3.12/site-packages -type d \( -name __pycache__ -o -name test -o -name tests \) -prune -exec rm -rf '{}' +; \
+    find /usr/local/lib/python3.12/site-packages -type f \( -name '*.pyc' -o -name '*.pyo' \) -delete; \
+    pip cache purge; \
+    rm -rf /var/lib/apt/lists/*; \
+    rm -rf /var/log/*
 
 ENV LANG=C.UTF-8
 
