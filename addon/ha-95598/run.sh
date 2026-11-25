@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+echo "[ha-95598-debug] run.sh started"
+
 CONFIG_PATH=/data/options.json
 
 json_get() {
@@ -82,4 +84,6 @@ if [[ "${LOGIN_CREDENTIALS_JSON}" != "[]" ]]; then
   export LOGIN_CREDENTIALS="${LOGIN_CREDENTIALS_JSON}"
 fi
 
-exec xvfb-run -a --server-args="-screen 0 1920x1080x24" python3 -m scripts.main
+echo "[ha-95598-debug] options loaded; starting Xvfb and Python"
+exec xvfb-run -a --server-args="-screen 0 1920x1080x24" \
+  python3 -u -X importtime -c 'print("[ha-95598-debug] importing scripts.main", flush=True); import scripts.main; print("[ha-95598-debug] imports complete", flush=True); scripts.main.main()'
