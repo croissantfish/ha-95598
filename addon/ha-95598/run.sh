@@ -84,6 +84,11 @@ if [[ "${LOGIN_CREDENTIALS_JSON}" != "[]" ]]; then
   export LOGIN_CREDENTIALS="${LOGIN_CREDENTIALS_JSON}"
 fi
 
-echo "[ha-95598-debug] options loaded; starting Xvfb and Python"
-exec xvfb-run -a --server-args="-screen 0 1920x1080x24" \
-  python3 -u -X importtime -c 'print("[ha-95598-debug] importing scripts.main", flush=True); import scripts.main; print("[ha-95598-debug] imports complete", flush=True); scripts.main.main()'
+echo "[ha-95598-debug] options loaded; starting Xvfb directly"
+Xvfb :99 -screen 0 1920x1080x24 >/tmp/ha-95598-xvfb.log 2>&1 &
+XVFB_PID=$!
+trap 'kill "${XVFB_PID}" 2>/dev/null || true' EXIT
+export DISPLAY=:99
+
+echo "[ha-95598-debug] Xvfb launched; importing Python"
+python3 -u -X importtime -c 'print("[ha-95598-debug] importing scripts.main", flush=True); import scripts.main; print("[ha-95598-debug] imports complete", flush=True); scripts.main.main()'
