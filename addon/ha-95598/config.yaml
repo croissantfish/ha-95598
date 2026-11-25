@@ -1,13 +1,13 @@
-name: "95598 for Home Assistant (Debug)"
-version: "0.1.0-debug.10"
-slug: "ha_95598_debug"
-description: "Debug startup for 95598 electricity synchronization"
+name: "95598 for Home Assistant"
+version: "0.1.1"
+slug: "ha_95598"
+description: "Sync 95598 electricity data to Home Assistant through MQTT Discovery"
 url: "https://github.com/croissantfish/ha-95598"
 arch:
   - aarch64
   - amd64
 startup: services
-boot: manual
+boot: auto
 init: true
 host_network: false
 tmpfs: true
