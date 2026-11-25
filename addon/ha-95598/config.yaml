@@ -1,5 +1,5 @@
 name: "95598 for Home Assistant"
-version: "0.1.4.6"
+version: "0.1.4.7"
 slug: "ha_95598"
 description: "Sync 95598 electricity data to Home Assistant through MQTT Discovery"
 url: "https://github.com/croissantfish/ha-95598"

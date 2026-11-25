@@ -143,6 +143,7 @@ class LoginManager:
         if self._is_password_login_in_cooldown():
             if self._allow_qr_after_rk001():
                 logging.info("Password login is in RK001 cooldown; explicit QR fallback is enabled for this run.")
+                self._open_login_page(driver)
                 return self._fallback_login(driver)
             logging.info("Password login is in cooldown because recent attempts hit RK001. Skip this unattended run instead of switching to QR-code login.")
             return False
