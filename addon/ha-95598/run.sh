@@ -83,25 +83,18 @@ if [[ "${LOGIN_CREDENTIALS_JSON}" != "[]" ]]; then
   export LOGIN_CREDENTIALS="${LOGIN_CREDENTIALS_JSON}"
 fi
 
-Xvfb :100 -screen 0 1920x1080x24 >/tmp/ha-95598-xvfb.log 2>&1 &
-export DISPLAY=:100
-sleep 1
+unset DISPLAY
+python3 - <<'PY'
+from pathlib import Path
 
-chromium --version
-chromedriver --version
-cat /tmp/ha-95598-xvfb.log
-chromium --no-sandbox --disable-dev-shm-usage --dump-dom about:blank
-python3 -u - <<'PY'
-from scripts.support.browser_factory import create_chromium_driver
-
-try:
-    driver = create_chromium_driver(5)
-except Exception as exc:
-    print(f"[ha-95598-debug] browser startup failed: {type(exc).__name__}: {exc}", flush=True)
-    raise SystemExit(1)
-else:
-    print("[ha-95598-debug] browser startup succeeded", flush=True)
-    driver.quit()
+path = Path("/app/scripts/support/browser_factory.py")
+text = path.read_text(encoding="utf-8")
+needle = "    chrome_options = webdriver.ChromeOptions()\n"
+replacement = needle + "    chrome_options.add_argument(\"--headless=new\")\n"
+if "headless=new" not in text:
+    if needle not in text:
+        raise RuntimeError("browser factory insertion point not found")
+    path.write_text(text.replace(needle, replacement, 1), encoding="utf-8")
 PY
 
 exec python3 -m scripts.main
