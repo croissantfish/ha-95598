@@ -89,6 +89,7 @@ export DISPLAY=:99
 chromium --version
 chromedriver --version
 cat /tmp/ha-95598-xvfb.log
+chromium --no-sandbox --disable-dev-shm-usage --dump-dom about:blank
 python3 -u - <<'PY'
 from scripts.support.browser_factory import create_chromium_driver
 
